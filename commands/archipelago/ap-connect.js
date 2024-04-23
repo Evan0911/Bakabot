@@ -80,26 +80,27 @@ const onMessageLogs = async function (event) {
   ) {
     const data = message[0]["data"];
     let messageEnd = "";
-    let player = "";
+    const sender = data[0]["text"];
+    let receiver = "";
     if (data.length > 6) {
-      player = data[4]["text"];
+      receiver = data[4]["text"];
       messageEnd =
         data[3]["text"] +
         playerIdToName(data[4]["text"]) +
         data[5]["text"] +
-        locationIdToName(data[6]["text"], player) +
+        locationIdToName(data[6]["text"], sender) +
         data[7]["text"];
     } else {
-      player = data[0]["text"];
+      receiver = data[0]["text"];
       messageEnd =
-        data[3]["text"] + locationIdToName(data[4]["text"], player) + data[5]["text"];
+        data[3]["text"] + locationIdToName(data[4]["text"], sender) + data[5]["text"];
     }
 
     if (data[2]["flags"] == 0) {
       sendMessage(
         playerIdToName(data[0]["text"]) +
           data[1]["text"] +
-          itemIdToName(data[2]["text"], player) +
+          itemIdToName(data[2]["text"], receiver) +
           messageEnd +
           " [Useless]"
       );
@@ -108,7 +109,7 @@ const onMessageLogs = async function (event) {
         playerIdToName(data[0]["text"]) +
           data[1]["text"] +
           "**" +
-          itemIdToName(data[2]["text"], player) +
+          itemIdToName(data[2]["text"], receiver) +
           "**" +
           messageEnd +
           " [PROGRESSIVE]"
@@ -118,7 +119,7 @@ const onMessageLogs = async function (event) {
         playerIdToName(data[0]["text"]) +
           data[1]["text"] +
           "*" +
-          itemIdToName(data[2]["text"], player) +
+          itemIdToName(data[2]["text"], receiver) +
           "*" +
           messageEnd +
           " [Useful]"
@@ -128,7 +129,7 @@ const onMessageLogs = async function (event) {
         playerIdToName(data[0]["text"]) +
           data[1]["text"] +
           "__" +
-          itemIdToName(data[2]["text"], player) +
+          itemIdToName(data[2]["text"], receiver) +
           "__" +
           messageEnd +
           " [Trap]"
