@@ -1,41 +1,20 @@
-const { SlashCommandBuilder } = require("discord.js");
-const { logChannelId } = require("../../config.json");
 const WebSocket = require("ws");
+const {sendMessage} = require("../utils/sendMessage");
+const { archipelagoUrl } = require("../config.json");
 const _ = require("lodash");
 
 let playerName = "";
-let players = [];
+let port = "";
+let playerList = [];
 let gameList = [];
 let gameDataPackages = {};
+let ws = "";
+let key = "";
+const queue = [];
 
-module.exports = {
-  data: new SlashCommandBuilder()
-    .setName("ap-connect")
-    .setDescription("Connect to an Archipelago session")
-    .addStringOption((option) =>
-      option
-        .setName("port")
-        .setDescription("The port of the room")
-        .setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("player_name")
-        .setDescription("The player you want to connect as.")
-        .setRequired(true)
-    ),
-  async execute(interaction) {
-    const port = interaction.options.getString("port");
-    playerName = interaction.options.getString("player_name");
-    interaction.reply(
-      `Connecting to Archipelago session on port ${port} as ${playerName}...`
-    );
-    wsLogs = new WebSocket(`ws://localhost:${port}`);
-    wsLogs.onmessage = onMessageLogs;
-  },
-};
+let isReady = false;
 
-const onMessageLogs = async function (event) {
+const onMessage = function (event) {
   const message = JSON.parse(event.data);
   if (message[0]["cmd"] == "RoomInfo") {
     gameList = message[0]["games"];
@@ -59,7 +38,7 @@ const onMessageLogs = async function (event) {
     event.target.send(JSON.stringify(payload));
   } else if (message[0]["cmd"] == "Connected") {
     sendMessage("Connected to Archipelago session");
-    players = message[0]["slot_info"];
+    playerList = message[0]["slot_info"];
     const payload = [
       {
         cmd: "GetDataPackage",
@@ -67,13 +46,13 @@ const onMessageLogs = async function (event) {
       },
     ];
     event.target.send(JSON.stringify(payload));
-  }
-  else if (message[0]["cmd"] == "DataPackage") {
+  } else if (message[0]["cmd"] == "DataPackage") {
     gameDataPackages = message[0]["data"]["games"];
-  }
-   else if (message[0]["cmd"] == "ConnectionRefused") {
-    sendMessage("Connection refused\n" + message[0]["errors"][0]);
-    event.target.close();
+    isReady = true;
+    if (queue.length > 0) {
+      queue.forEach((func) => func());
+      queue.length = 0;
+    }
   } else if (
     message[0]["cmd"] == "PrintJSON" &&
     message[0]["type"] == "ItemSend"
@@ -93,7 +72,9 @@ const onMessageLogs = async function (event) {
     } else {
       receiver = data[0]["text"];
       messageEnd =
-        data[3]["text"] + locationIdToName(data[4]["text"], sender) + data[5]["text"];
+        data[3]["text"] +
+        locationIdToName(data[4]["text"], sender) +
+        data[5]["text"];
     }
 
     if (data[2]["flags"] == 0) {
@@ -137,31 +118,86 @@ const onMessageLogs = async function (event) {
     }
   } else if (message[0]["cmd"] == "PrintJSON" && message[0]["type"] == "Goal") {
     sendMessage(message[0]["data"][0]["text"]);
+  } else if (message[0]["cmd"] == "Retrieved") {
+    const hints = message[0]["keys"][key];
+    _.forEach(hints, (hint) => {
+      if (!hint["found"]) {
+        sendMessage(
+          `${playerIdToName(hint["receiving_player"])}'s ${itemIdToName(
+            hint["item"], hint["receiving_player"]
+          )} is located in ${locationIdToName(
+            hint["location"], hint["finding_player"]
+          )} in ${playerIdToName(hint["finding_player"])}'s world (entrance: ${
+            hint["entrance"] == "" ? "Vanilla" : hint["entrance"]
+          })`
+        );
+      }
+    });
+  } else if (message[0]["cmd"] == "ConnectionRefused") {
+    sendMessage("Connection refused\n" + message[0]["errors"][0]);
+    event.target.close();
+    isReady = false;
   }
 };
 
-const sendMessage = function (message) {
-  const channel = client.channels.cache.get(logChannelId);
-  channel.send(message);
+module.exports = {
+  getHints: function (player) {
+    if (!isReady){
+      queue.push(this.getHints.bind(this, player));
+      return;
+    }
+    key = "_read_hints_0_" + playerNameToId(player);
+    const payload = [
+      {
+        cmd: "Get",
+        keys: [key],
+      },
+    ];
+    ws.send(JSON.stringify(payload));
+  },
+  startWebSocket: function (_port, _playerName) {
+    playerName = _playerName;
+    if (!isReady) {
+      port = _port;
+      ws = new WebSocket(archipelagoUrl + _port);
+      ws.onmessage = onMessage;
+      
+      setTimeout(() => {
+        if (!isReady) {
+          sendMessage("Connection timed out");
+          ws.close();
+        }
+      }, 10000);
+    }
+  },
+  stopWebSocket: function () {
+    ws.close();
+  },
+  checkConnection(_port) {
+    return isReady && port === _port;
+  },
 };
 
 const playerIdToName = function (id) {
-  return players[id]["name"];
+  return playerList[id]["name"];
+};
+
+const playerNameToId = function (name) {
+  return _.findKey(playerList, (player) => player["name"] === name);
 };
 
 const itemIdToName = function (id, playerId) {
   const gameName = getGameWithPlayerId(playerId);
   const items = gameDataPackages[gameName]["item_name_to_id"];
-  return _.findKey(items, itemId => itemId === Number(id));
+  return _.findKey(items, (itemId) => itemId === Number(id));
 };
 
-const locationIdToName = function (id, playerId) 
-{
+const locationIdToName = function (id, playerId) {
   const gameName = getGameWithPlayerId(playerId);
   const locations = gameDataPackages[gameName]["location_name_to_id"];
-  return _.findKey(locations, locationId => locationId === Number(id));
+  return _.findKey(locations, (locationId) => locationId === Number(id));
 };
 
 const getGameWithPlayerId = function (id) {
-  return players[id]["game"];
+  return playerList[id]["game"];
 };
