@@ -176,6 +176,11 @@ module.exports = {
   checkConnection(_port) {
     return isReady && port === _port;
   },
+  locationIdToName: function (id, playerId, _gameDataPackages = gameDataPackages, _playerList = playerList) {
+    const gameName = getGameWithPlayerId(playerId, _playerList);
+    const locations = _gameDataPackages[gameName]["location_name_to_id"];
+    return _.findKey(locations, (locationId) => locationId === Number(id));
+  },
 };
 
 const playerIdToName = function (id) {
@@ -192,12 +197,6 @@ const itemIdToName = function (id, playerId) {
   return _.findKey(items, (itemId) => itemId === Number(id));
 };
 
-const locationIdToName = function (id, playerId) {
-  const gameName = getGameWithPlayerId(playerId);
-  const locations = gameDataPackages[gameName]["location_name_to_id"];
-  return _.findKey(locations, (locationId) => locationId === Number(id));
-};
-
-const getGameWithPlayerId = function (id) {
-  return playerList[id]["game"];
+const getGameWithPlayerId = function (id, _playerList = playerList) {
+  return _playerList[id]["game"];
 };

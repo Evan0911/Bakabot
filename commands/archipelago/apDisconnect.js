@@ -7,6 +7,6 @@ module.exports = {
     .setDescription("Disconnect from the Archipelago session"),
   async execute(interaction) {
     await interaction.reply("Disconnected from Archipelago session.");
-    apWebsocket.disconnect();
+    apWebsocket.stopWebSocket();
   },
 };
