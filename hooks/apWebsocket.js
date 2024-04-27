@@ -84,8 +84,8 @@ const onMessage = function (event) {
           itemIdToName(data[2]["text"], receiver) +
           messageEnd +
           " [Useless]"
-      );
-    } else if (data[2]["flags"] == 1) {
+        );
+      } else if (data[2]["flags"] == 1) {
       sendMessage(
         playerIdToName(data[0]["text"]) +
           data[1]["text"] +
@@ -104,11 +104,11 @@ const onMessage = function (event) {
           "*" +
           messageEnd +
           " [Useful]"
-      );
+        );
     } else if (data[2]["flags"] == 4) {
       sendMessage(
         playerIdToName(data[0]["text"]) +
-          data[1]["text"] +
+        data[1]["text"] +
           "__" +
           itemIdToName(data[2]["text"], receiver) +
           "__" +
@@ -138,6 +138,30 @@ const onMessage = function (event) {
     event.target.close();
     isReady = false;
   }
+};
+
+const playerIdToName = function (id) {
+  return playerList[id]["name"];
+};
+
+const playerNameToId = function (name) {
+  return _.findKey(playerList, (player) => player["name"] === name);
+};
+
+const itemIdToName = function (id, playerId) {
+  const gameName = getGameWithPlayerId(playerId);
+  const items = gameDataPackages[gameName]["item_name_to_id"];
+  return _.findKey(items, (itemId) => itemId === Number(id));
+};
+
+const locationIdToName = function (id, playerId, _gameDataPackages = gameDataPackages, _playerList = playerList) {
+  const gameName = getGameWithPlayerId(playerId, _playerList);
+  const locations = _gameDataPackages[gameName]["location_name_to_id"];
+  return _.findKey(locations, (locationId) => locationId === Number(id));
+};
+
+const getGameWithPlayerId = function (id, _playerList = playerList) {
+  return _playerList[id]["game"];
 };
 
 module.exports = {
@@ -176,27 +200,5 @@ module.exports = {
   checkConnection(_port) {
     return isReady && port === _port;
   },
-  locationIdToName: function (id, playerId, _gameDataPackages = gameDataPackages, _playerList = playerList) {
-    const gameName = getGameWithPlayerId(playerId, _playerList);
-    const locations = _gameDataPackages[gameName]["location_name_to_id"];
-    return _.findKey(locations, (locationId) => locationId === Number(id));
-  },
-};
-
-const playerIdToName = function (id) {
-  return playerList[id]["name"];
-};
-
-const playerNameToId = function (name) {
-  return _.findKey(playerList, (player) => player["name"] === name);
-};
-
-const itemIdToName = function (id, playerId) {
-  const gameName = getGameWithPlayerId(playerId);
-  const items = gameDataPackages[gameName]["item_name_to_id"];
-  return _.findKey(items, (itemId) => itemId === Number(id));
-};
-
-const getGameWithPlayerId = function (id, _playerList = playerList) {
-  return _playerList[id]["game"];
+  locationIdToName: locationIdToName,
 };
