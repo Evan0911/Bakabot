@@ -2,18 +2,19 @@ const { SlashCommandBuilder } = require("discord.js");
 const { archipelagoUrl } = require("../../config.json");
 const { sendMessage } = require("../../utils/sendMessage");
 const _ = require("lodash");
-const { locationIdToName } = require("../../hooks/apWebsocket");
+const { itemIdToName } = require("../../hooks/apWebsocket");
 const WebSocket = require("ws");
 
 let playerName = "";
 let playerList = [];
-let missingLocations = [];
+let progressivesItems = [];
 let playerId = "";
+let gameName = "";
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("ap-missing-locations")
-    .setDescription("Show all missing locations for a game")
+    .setName("ap-get-progressives")
+    .setDescription("Show all progressives items that a player received")
     .addStringOption((option) =>
       option
         .setName("port")
@@ -29,9 +30,7 @@ module.exports = {
   async execute(interaction) {
     const port = interaction.options.getString("port");
     playerName = interaction.options.getString("player_name");
-    await interaction.reply(
-      `Searching for missing locations for player ${playerName}...`
-    );
+    await interaction.reply(`Searching for items for player ${playerName}...`);
     ws = new WebSocket(archipelagoUrl + port);
     ws.onmessage = onMessage;
   },
@@ -40,7 +39,6 @@ module.exports = {
 const onMessage = function (event) {
   const message = JSON.parse(event.data);
   if (message[0]["cmd"] == "RoomInfo") {
-    gameList = message[0]["games"];
     const payload = [
       {
         cmd: "Connect",
@@ -61,30 +59,34 @@ const onMessage = function (event) {
     event.target.send(JSON.stringify(payload));
   } else if (message[0]["cmd"] == "Connected") {
     playerList = message[0]["slot_info"];
-    missingLocations = message[0]["missing_locations"];
     playerId = message[0]["slot"];
+    gameName = message[0]["slot_info"][playerId]["game"]
     const payload = [
       {
         cmd: "GetDataPackage",
-        games: gameList,
+        games: [gameName],
       },
     ];
     event.target.send(JSON.stringify(payload));
   } else if (message[0]["cmd"] == "DataPackage") {
     const gameDataPackages = message[0]["data"]["games"];
-    if (missingLocations.length > 0) {
-      _.forEach(missingLocations, (location) => {
-        sendMessage(
-          locationIdToName(location, playerId, gameDataPackages, playerList)
-        );
+    if (progressivesItems.length > 0) {
+      _.forEach(progressivesItems, (item) => {
+        sendMessage(itemIdToName(item["item"], playerId, gameDataPackages, playerList, gameName));
       });
     }
     else {
-      sendMessage("No more missing locations for this player.");
+      sendMessage("No progressives items received by " + playerName);
     }
     event.target.close();
   } else if (message[0]["cmd"] == "ConnectionRefused") {
     sendMessage("Connection refused\n" + message[0]["errors"][0]);
     event.target.close();
+  }
+  if (message[1] && message[1]["cmd"] == "ReceivedItems") {
+    progressivesItems = _.filter(
+      message[1]["items"],
+      (item) => item["flags"] == 1
+    );
   }
 };

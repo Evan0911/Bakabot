@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const {sendMessage} = require("../utils/sendMessage");
+const { sendMessage } = require("../utils/sendMessage");
 const { archipelagoUrl } = require("../config.json");
 const _ = require("lodash");
 
@@ -84,8 +84,8 @@ const onMessage = function (event) {
           itemIdToName(data[2]["text"], receiver) +
           messageEnd +
           " [Useless]"
-        );
-      } else if (data[2]["flags"] == 1) {
+      );
+    } else if (data[2]["flags"] == 1) {
       sendMessage(
         playerIdToName(data[0]["text"]) +
           data[1]["text"] +
@@ -104,11 +104,11 @@ const onMessage = function (event) {
           "*" +
           messageEnd +
           " [Useful]"
-        );
+      );
     } else if (data[2]["flags"] == 4) {
       sendMessage(
         playerIdToName(data[0]["text"]) +
-        data[1]["text"] +
+          data[1]["text"] +
           "__" +
           itemIdToName(data[2]["text"], receiver) +
           "__" +
@@ -120,19 +120,28 @@ const onMessage = function (event) {
     sendMessage(message[0]["data"][0]["text"]);
   } else if (message[0]["cmd"] == "Retrieved") {
     const hints = message[0]["keys"][key];
-    _.forEach(hints, (hint) => {
-      if (!hint["found"]) {
-        sendMessage(
-          `${playerIdToName(hint["receiving_player"])}'s ${itemIdToName(
-            hint["item"], hint["receiving_player"]
-          )} is located in ${locationIdToName(
-            hint["location"], hint["finding_player"]
-          )} in ${playerIdToName(hint["finding_player"])}'s world (entrance: ${
-            hint["entrance"] == "" ? "Vanilla" : hint["entrance"]
-          })`
-        );
-      }
-    });
+    if (hints.length == 0) {
+      _.forEach(hints, (hint) => {
+        if (!hint["found"]) {
+          sendMessage(
+            `${playerIdToName(hint["receiving_player"])}'s ${itemIdToName(
+              hint["item"],
+              hint["receiving_player"]
+            )} is located in ${locationIdToName(
+              hint["location"],
+              hint["finding_player"]
+            )} in ${playerIdToName(
+              hint["finding_player"]
+            )}'s world (entrance: ${
+              hint["entrance"] == "" ? "Vanilla" : hint["entrance"]
+            })`
+          );
+        }
+      });
+    }
+    else {
+      sendMessage("No hints found for this player.");
+    }
   } else if (message[0]["cmd"] == "ConnectionRefused") {
     sendMessage("Connection refused\n" + message[0]["errors"][0]);
     event.target.close();
@@ -148,14 +157,20 @@ const playerNameToId = function (name) {
   return _.findKey(playerList, (player) => player["name"] === name);
 };
 
-const itemIdToName = function (id, playerId) {
-  const gameName = getGameWithPlayerId(playerId);
-  const items = gameDataPackages[gameName]["item_name_to_id"];
+const itemIdToName = function (id, playerId, _gameDataPackages = gameDataPackages, _playerList = playerList, gameName = "") {
+  if (gameName === "") gameName = getGameWithPlayerId(playerId, _playerList);
+  const items = _gameDataPackages[gameName]["item_name_to_id"];
   return _.findKey(items, (itemId) => itemId === Number(id));
 };
 
-const locationIdToName = function (id, playerId, _gameDataPackages = gameDataPackages, _playerList = playerList) {
-  const gameName = getGameWithPlayerId(playerId, _playerList);
+const locationIdToName = function (
+  id,
+  playerId,
+  _gameDataPackages = gameDataPackages,
+  _playerList = playerList,
+  gameName = ""
+) {
+  if (gameName === "") gameName = getGameWithPlayerId(playerId, _playerList);
   const locations = _gameDataPackages[gameName]["location_name_to_id"];
   return _.findKey(locations, (locationId) => locationId === Number(id));
 };
@@ -166,7 +181,7 @@ const getGameWithPlayerId = function (id, _playerList = playerList) {
 
 module.exports = {
   getHints: function (player) {
-    if (!isReady){
+    if (!isReady) {
       queue.push(this.getHints.bind(this, player));
       return;
     }
@@ -185,7 +200,7 @@ module.exports = {
       port = _port;
       ws = new WebSocket(archipelagoUrl + _port);
       ws.onmessage = onMessage;
-      
+
       setTimeout(() => {
         if (!isReady) {
           sendMessage("Connection timed out");
@@ -201,4 +216,5 @@ module.exports = {
     return isReady && port === _port;
   },
   locationIdToName: locationIdToName,
+  itemIdToName: itemIdToName,
 };
