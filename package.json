@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/voice": "^0.16.1",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
+    "libsodium-wrappers": "^0.7.13",
     "lodash": "^4.17.21",
     "rxjs": "^7.8.1",
     "ws": "^8.16.0"
