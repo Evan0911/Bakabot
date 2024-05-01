@@ -20,13 +20,14 @@ module.exports = {
     while(files.length > 0) {
       // Create a row and send it
       const row = new ActionRowBuilder()
-      for (let i = 0; i <= 5 && files.length != 0; i++) {
+      for (let i = 0; i < 5 && files.length != 0; i++) {
         const file = files.pop().split('/').pop().split('.')[0]
         const button = new ButtonBuilder().setCustomId(file).setLabel(file).setStyle('Secondary')
         row.addComponents(button)
       }
-      await interaction.reply({ content: 'Soundboard:', components: [row] })
+      await interaction.channel.send({ content: 'Soundboard:', components: [row] })
     }
+    await interaction.reply({content: 'Soundboard buttons sent.', ephemeral: true})
 	},
 };
 

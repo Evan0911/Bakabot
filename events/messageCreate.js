@@ -7,5 +7,9 @@ module.exports = {
     if (regexOfUndertale.test(message.content)) {
       message.reply({content: "of Undertale", allowedMentions: {repliedUser: false}});
     }
+    const likeARegex = new RegExp(/dragon/gmi);
+    if (likeARegex.test(message.content)) {
+      message.reply({content: "Like a what ?", allowedMentions: {repliedUser: false}});
+    }
   },
 };

@@ -1,7 +1,11 @@
 const { Events } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
-const { createAudioPlayer, createAudioResource } = require("@discordjs/voice");
+const {
+  createAudioPlayer,
+  createAudioResource,
+  joinVoiceChannel,
+} = require("@discordjs/voice");
 
 module.exports = {
   name: Events.InteractionCreate,
@@ -33,6 +37,8 @@ module.exports = {
         }
       }
     } else if (interaction.isButton()) {
+      interaction.deferReply({ ephemeral: true });
+      interaction.deleteReply();
       file = fs.readFileSync(
         path.join(
           __dirname,
@@ -54,15 +60,17 @@ module.exports = {
       }
 
       const channel = await interaction.member.voice.channel;
-      const connection = await channel.joinVoiceChannel({
+      const connection = await joinVoiceChannel({
         channelId: channel.id,
         guildId: channel.guild.id,
         adapterCreator: channel.guild.voiceAdapterCreator,
       });
 
-			const audioPlayer = createAudioPlayer();
-			const resource = createAudioResource(file.split('/').pop());
-			audioPlayer.play(resource);
+      const audioPlayer = createAudioPlayer();
+      const resource = createAudioResource(
+        path.join(__dirname, `../resources/soundboard/${interaction.customId}.mp3`)
+      );
+      audioPlayer.play(resource);
 
       // Subscribe the connection to the audio player (will play audio on the voice connection)
       const subscription = connection.subscribe(audioPlayer);
