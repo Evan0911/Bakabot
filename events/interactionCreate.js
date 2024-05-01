@@ -37,8 +37,6 @@ module.exports = {
         }
       }
     } else if (interaction.isButton()) {
-      interaction.deferReply({ ephemeral: true });
-      interaction.deleteReply();
       file = fs.readFileSync(
         path.join(
           __dirname,
@@ -46,17 +44,21 @@ module.exports = {
           `${interaction.customId}.mp3`
         )
       );
-
+      
       if (!file) {
         await interaction.reply("File not found.");
         return;
       }
-
+      
       if (!interaction.member.voice.channel) {
         await interaction.reply(
-          "You must be in a voice channel to use this command."
+          {content: "You must be in a voice channel to use this command.", ephemeral: true}
         );
         return;
+      }
+      else {
+        interaction.deferReply({ ephemeral: true });
+        interaction.deleteReply();
       }
 
       const channel = await interaction.member.voice.channel;
