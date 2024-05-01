@@ -13,10 +13,7 @@
     "@discordjs/voice": "^0.16.1",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
-<<<<<<< HEAD
     "ffmpeg-static": "^5.2.0",
-=======
->>>>>>> 0af3a3f69966e5beea92c445231fbfa15b6e4533
     "libsodium-wrappers": "^0.7.13",
     "lodash": "^4.17.21",
     "rxjs": "^7.8.1",
