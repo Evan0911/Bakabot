@@ -37,8 +37,11 @@ module.exports = {
         }
       }
     } else if (interaction.isButton()) {
+<<<<<<< HEAD
       interaction.deferReply({ ephemeral: true });
       interaction.deleteReply();
+=======
+>>>>>>> 0af3a3f69966e5beea92c445231fbfa15b6e4533
       file = fs.readFileSync(
         path.join(
           __dirname,
@@ -60,17 +63,27 @@ module.exports = {
       }
 
       const channel = await interaction.member.voice.channel;
+<<<<<<< HEAD
       const connection = await joinVoiceChannel({
+=======
+      const connection = await channel.joinVoiceChannel({
+>>>>>>> 0af3a3f69966e5beea92c445231fbfa15b6e4533
         channelId: channel.id,
         guildId: channel.guild.id,
         adapterCreator: channel.guild.voiceAdapterCreator,
       });
 
+<<<<<<< HEAD
       const audioPlayer = createAudioPlayer();
       const resource = createAudioResource(
         path.join(__dirname, `../resources/soundboard/${interaction.customId}.mp3`)
       );
       audioPlayer.play(resource);
+=======
+			const audioPlayer = createAudioPlayer();
+			const resource = createAudioResource(file.split('/').pop());
+			audioPlayer.play(resource);
+>>>>>>> 0af3a3f69966e5beea92c445231fbfa15b6e4533
 
       // Subscribe the connection to the audio player (will play audio on the voice connection)
       const subscription = connection.subscribe(audioPlayer);
