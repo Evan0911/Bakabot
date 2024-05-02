@@ -1,6 +1,7 @@
 const WebSocket = require("ws");
 const { sendMessage } = require("../utils/sendMessage");
-const { archipelagoUrl } = require("../config.json");
+const config = require('config');
+const archipelagoUrl = config.get('archipelagoUrl');
 const _ = require("lodash");
 
 let playerName = "";

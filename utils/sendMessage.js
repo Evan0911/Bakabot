@@ -1,4 +1,5 @@
-const { logChannelId } = require("../config.json");
+const config = require('config');
+const logChannelId = config.get('logChannelId');
 
 module.exports = {
   sendMessage: function (message) {

@@ -1,5 +1,7 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { archipelagoUrl } = require("../../config.json");
+const config = require('config');
+const archipelagoUrl = config.get('archipelagoUrl');
+
 const { sendMessage } = require("../../utils/sendMessage");
 const _ = require("lodash");
 const { itemIdToName } = require("../../hooks/apWebsocket");

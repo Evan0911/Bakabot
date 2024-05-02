@@ -5,12 +5,16 @@
   "main": "bakabot.js",
   "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:dev": "NODE_ENV=development node bakabot.js",
+    "start:qa": "NODE_ENV=qa node bakabot.js",
+    "start:prod": "NODE_ENV=production  node bakabot.js",
+    "start:demo": "NODE_ENV=demo node bakabot.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@discordjs/voice": "^0.16.1",
+    "config": "^3.3.11",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
     "ffmpeg-static": "^5.2.0",
