@@ -55,7 +55,7 @@ module.exports = {
         for (let i = 0; i < 5 && files.length != 0; i++) {
           const file = files.pop().split("/").pop().split(".")[0];
           const button = new ButtonBuilder()
-            .setCustomId(file)
+            .setCustomId(`soundboard_${file}`)
             .setLabel(file)
             .setStyle("Secondary");
           row.addComponents(button);

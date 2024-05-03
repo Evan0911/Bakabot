@@ -37,45 +37,48 @@ module.exports = {
         }
       }
     } else if (interaction.isButton()) {
-      file = fs.readFileSync(
-        path.join(
-          __dirname,
-          "../resources/soundboard/",
-          `${interaction.customId}.mp3`
-        )
-      );
-      
-      if (!file) {
-        await interaction.reply("File not found.");
-        return;
-      }
-      
-      if (!interaction.member.voice.channel) {
-        await interaction.reply(
-          {content: "You must be in a voice channel to use this command.", ephemeral: true}
+      const buttonId = interaction.customId.split(/_(.*)/s)
+      if (buttonId[0] == "soundboard") {
+        file = fs.readFileSync(
+          path.join(
+            __dirname,
+            "../resources/soundboard/",
+            `${buttonId[1]}.mp3`
+          )
         );
-        return;
+        
+        if (!file) {
+          await interaction.reply("File not found.");
+          return;
+        }
+        
+        if (!interaction.member.voice.channel) {
+          await interaction.reply(
+            {content: "You must be in a voice channel to use this command.", ephemeral: true}
+          );
+          return;
+        }
+        else {
+          interaction.deferReply({ ephemeral: true });
+          interaction.deleteReply();
+        }
+  
+        const channel = await interaction.member.voice.channel;
+        const connection = await joinVoiceChannel({
+          channelId: channel.id,
+          guildId: channel.guild.id,
+          adapterCreator: channel.guild.voiceAdapterCreator,
+        });
+  
+        const audioPlayer = createAudioPlayer();
+        const resource = createAudioResource(
+          path.join(__dirname, `../resources/soundboard/${buttonId[1]}.mp3`)
+        );
+        audioPlayer.play(resource);
+  
+        // Subscribe the connection to the audio player (will play audio on the voice connection)
+        connection.subscribe(audioPlayer);
       }
-      else {
-        interaction.deferReply({ ephemeral: true });
-        interaction.deleteReply();
-      }
-
-      const channel = await interaction.member.voice.channel;
-      const connection = await joinVoiceChannel({
-        channelId: channel.id,
-        guildId: channel.guild.id,
-        adapterCreator: channel.guild.voiceAdapterCreator,
-      });
-
-      const audioPlayer = createAudioPlayer();
-      const resource = createAudioResource(
-        path.join(__dirname, `../resources/soundboard/${interaction.customId}.mp3`)
-      );
-      audioPlayer.play(resource);
-
-      // Subscribe the connection to the audio player (will play audio on the voice connection)
-      const subscription = connection.subscribe(audioPlayer);
     }
   },
 };
