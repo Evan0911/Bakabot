@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { archipelagoUrl } = require("../../config.json");
+const config = require('config');
+const archipelagoUrl = config.get('archipelagoUrl');
 const WebSocket = require("ws");
 const { ButtonBuilder } = require("discord.js");
 const { ActionRowBuilder } = require("discord.js");
@@ -39,8 +40,8 @@ module.exports = {
       cancelButton
     );
 
-    await interaction.reply({
-      content: `Searching for items for player ${playerName}...`,
+    const response = await interaction.reply({
+      content: `Are you sure you want to give up player ${playerName} ?`,
       ephemeral: true,
       components: [row],
     });
