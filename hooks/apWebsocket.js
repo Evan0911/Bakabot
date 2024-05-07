@@ -201,6 +201,14 @@ module.exports = {
       port = _port;
       ws = new WebSocket(archipelagoUrl + _port);
       ws.onmessage = onMessage;
+      ws.onclose = function () {
+        sendMessage("Connection closed");
+        isReady = false;
+      };
+      ws.onerror = function (error) {
+        sendMessage("Error: " + error);
+        isReady = false;
+      };
 
       setTimeout(() => {
         if (!isReady) {
