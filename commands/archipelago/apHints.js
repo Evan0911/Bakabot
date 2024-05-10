@@ -20,8 +20,10 @@ module.exports = {
   async execute(interaction) {
     const port = interaction.options.getString("port");
     playerName = interaction.options.getString("player_name");
-    await interaction.reply(
-      `Searching for hints for player ${playerName}...`
+    await interaction.reply({
+      content: `Searching for hints for player ${playerName}...`,
+      ephemeral: true,
+    }
     );
     if(!apWebsocket.checkConnection(port)) {
       apWebsocket.startWebSocket(port, playerName);
