@@ -8,7 +8,6 @@ module.exports = {
       channel.send(message);
     }
     catch (error) {
-      console.log("bonjour c'est moi")
       console.error(error);
     }
   }

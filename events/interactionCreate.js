@@ -17,6 +17,10 @@ module.exports = {
         console.error(
           `No command matching ${interaction.commandName} was found.`
         );
+        interaction.reply({
+          content: `No command matching ${interaction.commandName} was found.`,
+          ephemeral: true,
+        });
         return;
       }
 

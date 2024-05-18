@@ -206,7 +206,9 @@ module.exports = {
         isReady = false;
       };
       ws.onerror = function (error) {
-        sendMessage("Error: " + error);
+        const messageSymbol = Object.getOwnPropertySymbols(error).find(symbol => symbol.toString() === 'Symbol(kMessage)');
+        const message = error[messageSymbol];
+        sendMessage("Error: " + message);
         isReady = false;
       };
 
