@@ -220,6 +220,7 @@ module.exports = {
   },
   stopWebSocket: function () {
     ws.close();
+    isReady = false;
   },
   checkConnection(_port) {
     return isReady && port === _port;

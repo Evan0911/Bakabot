@@ -53,7 +53,7 @@ module.exports = {
       for (let i = 0; i < 5 && files.length != 0; i++) {
         const row = new ActionRowBuilder();
         for (let i = 0; i < 5 && files.length != 0; i++) {
-          const file = files.pop().split("/").pop().split(".")[0];
+          const file = files.shift().split("/").pop().split(".")[0];
           const button = new ButtonBuilder()
             .setCustomId(`soundboard_${file}`)
             .setLabel(file)
