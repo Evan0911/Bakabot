@@ -1,8 +1,15 @@
-const { getVoiceConnection } = require("@discordjs/voice");
+const {
+  getVoiceConnection,
+  joinVoiceChannel,
+  createAudioPlayer,
+  createAudioResource,
+} = require("@discordjs/voice");
 const { Events } = require("discord.js");
 const config = require("config");
 const _ = require("lodash");
 const guildId = config.get("guildId");
+const path = require("path");
+const fs = require('fs');
 
 module.exports = {
   name: Events.VoiceStateUpdate,
@@ -19,6 +26,34 @@ module.exports = {
       if (!isSomeoneHere) {
         connection.destroy();
       }
+    }
+
+    if (oldState.channelId === null && newState.channelId !== null) {
+      if (newState.member.user.bot) return;
+      fs.access('path/to/file.txt', fs.constants.F_OK, (err) => {
+        console.log(err ? 'File does not exist' : 'File exists');
+      });
+
+      const channel = await newState.channel;
+      const connection = await joinVoiceChannel({
+        channelId: channel.id,
+        guildId: channel.guild.id,
+        adapterCreator: channel.guild.voiceAdapterCreator,
+      });
+      const audioPlayer = createAudioPlayer();
+      const resource = createAudioResource(
+        path.join(
+          __dirname,
+          `../resources/soundboard/Welcome to Fun-Land Sonic.mp3`
+        )
+      );
+      audioPlayer.play(resource);
+
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1000);
+      });
+      // Subscribe the connection to the audio player (will play audio on the voice connection)
+      connection.subscribe(audioPlayer);
     }
   },
 };
