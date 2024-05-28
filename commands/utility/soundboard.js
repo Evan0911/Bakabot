@@ -7,14 +7,14 @@ const fs = require("fs");
 const path = require("path");
 const config = require('config');
 const soundboardChannelId = config.get('soundboardChannelId');
-const evieId = config.get('evieId');
+const adminId = config.get('adminId');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("soundboard")
     .setDescription("Send soundboard buttons to the channel."),
   async execute(interaction) {
-    if (interaction.member.id != evieId) {
+    if (interaction.member.id != adminId) {
       await interaction.reply({
         content: "You do not have permission to use this command.",
         ephemeral: true,
