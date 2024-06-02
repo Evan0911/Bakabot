@@ -14,7 +14,6 @@ const fs = require('fs');
 module.exports = {
   name: Events.VoiceStateUpdate,
   async execute(oldState, newState) {
-    console.log(newState)
     const user = oldState.member.id;
     const connection = getVoiceConnection(guildId);
     if (connection && connection.joinConfig.channelId === oldState.channelId && newState.channelId === null) {
