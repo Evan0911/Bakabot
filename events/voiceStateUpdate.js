@@ -14,9 +14,10 @@ const fs = require('fs');
 module.exports = {
   name: Events.VoiceStateUpdate,
   async execute(oldState, newState) {
+    console.log(newState)
     const user = oldState.member.id;
     const connection = getVoiceConnection(guildId);
-    if (connection && connection.joinConfig.channelId === oldState.channelId) {
+    if (connection && connection.joinConfig.channelId === oldState.channelId && newState.channelId === null) {
       let isSomeoneHere = false;
       for (const member of oldState.channel.members) {
         if (!member[1].user.bot && member[1].id !== user) {
