@@ -7,7 +7,6 @@ const checkEndDate = () => {
   reminders.forEach((reminder, index) => {
     if (reminder.date === now.toString()) {
       try {
-        console.log(`Sending reminder to ${reminder.user}`);
         const channel = client.channels.cache.get("771328486178291758");
         channel.send(`<@${reminder.user}> ${reminder.message}`);
         reminders.splice(index, 1);

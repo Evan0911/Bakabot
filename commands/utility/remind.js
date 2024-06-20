@@ -50,8 +50,6 @@ module.exports = {
       const date = new Date(new Date().getTime() + minutes * 60000);
       date.setSeconds(0);
 
-      console.log(date.toString());
-
       addReminder(interaction.user.id, date.toString(), message);
     } else if (subcommand === "at_x_date") {
       const date = new Date(interaction.options.getString("date"));
@@ -64,8 +62,6 @@ module.exports = {
       }
       date.setSeconds(0);
       const message = interaction.options.getString("message");
-
-      console.log(date.toString());
 
       addReminder(interaction.user.id, date.toString(), message);
     }
