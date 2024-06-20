@@ -9,7 +9,7 @@ module.exports = {
       subcommand
         .setName("in_x_minutes")
         .setDescription("Set a reminder for yourself in x minutes")
-        .addStringOption((option) =>
+        .addIntegerOption((option) =>
           option
             .setName("minutes")
             .setDescription("The time to wait before reminding you")
@@ -55,6 +55,13 @@ module.exports = {
       addReminder(interaction.user.id, date.toString(), message);
     } else if (subcommand === "at_x_date") {
       const date = new Date(interaction.options.getString("date"));
+      if (!(date instanceof Date && !isNaN(date))) {
+        interaction.reply({
+          content: "Invalid date format. Please use the format YYYY-MM-DDTHH:mm:ss.sssZ",
+          ephemeral: true,
+        });
+        return;
+      }
       date.setSeconds(0);
       const message = interaction.options.getString("message");
 
@@ -62,6 +69,6 @@ module.exports = {
 
       addReminder(interaction.user.id, date.toString(), message);
     }
-    interaction.reply({ content: "Reminder set!", ephemeral: true})
+    interaction.reply({ content: "Reminder set!", ephemeral: true });
   },
 };
