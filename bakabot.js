@@ -4,6 +4,7 @@ const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const config = require('config');
 const token = config.get('token');
+const { checkEndDate } = require('./hooks/reminderCheck.js');
 
 
 // Create a new client instance
@@ -47,3 +48,5 @@ for (const file of eventFiles) {
 client.login(token);
 
 module.exports = client;
+
+checkEndDate();
