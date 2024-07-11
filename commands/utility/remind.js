@@ -45,7 +45,7 @@ module.exports = {
     const subcommand = interaction.options.getSubcommand();
 
     if (subcommand === "in_x_minutes") {
-      const minutes = interaction.options.getString("minutes");
+      const minutes = interaction.options.getInteger("minutes");
       const message = interaction.options.getString("message");
       const date = new Date(new Date().getTime() + minutes * 60000);
       date.setSeconds(0);
