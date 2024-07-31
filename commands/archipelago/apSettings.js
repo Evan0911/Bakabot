@@ -1,6 +1,7 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, MessageAttachment } = require("discord.js");
 const config = require("config");
 const archipelagoUrl = config.get("archipelagoUrl");
+const logChannelId = config.get("logChannelId");
 
 const { sendMessage } = require("../../utils/sendMessage");
 const _ = require("lodash");
@@ -60,7 +61,10 @@ const onMessage = function (event) {
     event.target.send(JSON.stringify(payload));
   } else if (message[0]["cmd"] == "Connected") {
     const playerList = message[0]["slot_info"];
-    key = `_read_slot_data_${_.findKey(playerList, (player) => player["name"] === playerName)}`;
+    key = `_read_slot_data_${_.findKey(
+      playerList,
+      (player) => player["name"] === playerName
+    )}`;
     const payload = [
       {
         cmd: "Get",
@@ -69,7 +73,27 @@ const onMessage = function (event) {
     ];
     event.target.send(JSON.stringify(payload));
   } else if (message[0]["cmd"] == "Retrieved") {
-    sendMessage("```JSON\n" + JSON.stringify(message[0]["keys"][key], null, "\t") + "```");
+    const buffer = Buffer.from(
+      JSON.stringify(message[0]["keys"][key], null, "\t"),
+      "utf-8"
+    );
+    // const file = new MessageAttachment(buffer, "settings.json");
+    try {
+      const channel = client.channels.cache.get(logChannelId);
+      channel.send({
+        files: [
+          {
+            attachment: buffer,
+            name: "settings.json",
+          },
+        ],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+    // sendMessage(
+    //   "```JSON\n" + JSON.stringify(message[0]["keys"][key], null, "\t") + "```"
+    // );
     event.target.close();
   } else if (message[0]["cmd"] == "ConnectionRefused") {
     sendMessage("Connection refused\n" + message[0]["errors"][0]);
