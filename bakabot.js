@@ -5,7 +5,22 @@ const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const config = require('config');
 const token = config.get('token');
 const { checkEndDate } = require('./hooks/reminderCheck.js');
+const util = require('util');
 
+//Handle logs when app crashes
+//Check for log folder
+var dir = './logs';
+
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+
+process.on('uncaughtException', function(err) {
+	const today = new Date();
+	const log_file_err=fs.createWriteStream('./logs/' + today.toISOString() + '_error.log', {flags: 'w'});  
+	console.log('Caught exception: ' + err);
+	log_file_err.write(util.format('Caught exception: '+err) + '\n');
+});
 
 // Create a new client instance
 global.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] });

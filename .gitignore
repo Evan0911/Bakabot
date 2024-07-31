@@ -5,3 +5,4 @@ config.json
 resources/soundboard
 config
 bakabot-dev-compose.yaml
+logs/*
