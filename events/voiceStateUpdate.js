@@ -31,7 +31,10 @@ module.exports = {
     if (oldState.channelId === null && newState.channelId !== null) {
       if (newState.member.user.bot) return;
       fs.access('path/to/file.txt', fs.constants.F_OK, (err) => {
-        console.log(err ? 'File does not exist' : 'File exists');
+        if (err) {
+          console.log('File does not exist');
+          return;
+        }
       });
 
       const channel = await newState.channel;
