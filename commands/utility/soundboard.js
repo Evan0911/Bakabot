@@ -15,7 +15,7 @@ module.exports = {
     .setName("soundboard")
     .setDescription("Send soundboard buttons to the channel."),
   async execute(interaction) {
-    if (interaction.member.id != adminId || alrysuId) {
+    if (interaction.member.id != adminId && interaction.member.id != alrysuId) {
       await interaction.reply({
         content: "You do not have permission to use this command.",
         ephemeral: true,
