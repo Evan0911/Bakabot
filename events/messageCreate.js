@@ -15,5 +15,9 @@ module.exports = {
     if (wiresRegex.test(message.content) && message.author.id !== message.client.user.id) {
       message.reply({content: "https://static.wikia.nocookie.net/silly-cat/images/4/4f/Wire_Cat.png/revision/latest/thumbnail/width/360/height/360?cb=20231001190626", allowedMentions: {repliedUser: false}});
     }
+    const absolRegex = new RegExp(/absol|matt|umbrella|triangle|lawrence|kensas/gmi);
+    if (wiresRegex.test(message.content) && message.author.id !== message.client.user.id) {
+      message.reply({content: "https://pbs.twimg.com/media/GLd9SrwWsAAk8Py?format=jpg&name=large", allowedMentions: {repliedUser: false}});
+    }
   },
 };

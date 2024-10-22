@@ -6,6 +6,15 @@ const config = require('config');
 const token = config.get('token');
 const { checkEndDate } = require('./hooks/reminderCheck.js');
 
+//Handle log crashes
+const util = require('util');
+
+process.on('uncaughtException', function(err) {
+	const log_file_err=fs.createWriteStream('./logs/' + Date.now() + '_error.log', {flags: 'w'});  
+	console.log('Caught exception: ' + err);
+	log_file_err.write(util.format('Caught exception: '+err) + '\n');
+});
+
 
 // Create a new client instance
 global.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] });
